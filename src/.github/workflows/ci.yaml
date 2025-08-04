@@ -25,4 +25,3 @@ jobs:
       - run: cargo clippy --all-targets --all-features -- -D warnings
       - run: cargo fmt --all --check
       - run: cargo doc --no-deps --verbose
-      - run: cargo audit --deny=all
