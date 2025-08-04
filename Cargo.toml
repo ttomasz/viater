@@ -1,0 +1,9 @@
+[package]
+name = "viater"
+version = "0.1.0"
+edition = "2024"
+license = "CC0-1.0"
+readme = "README.md"
+description = "Library that calculates average wind direction and its standard deviation using Yamartino method."
+
+[dependencies]
