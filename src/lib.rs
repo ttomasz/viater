@@ -4,6 +4,9 @@ pub struct DirectionMeasurements {
     sum_cos_rad: f64,
 }
 
+#[cfg(feature = "arrow")]
+use arrow::array::Float64Array;
+
 impl DirectionMeasurements {
     pub fn new() -> Self {
         DirectionMeasurements {
@@ -18,6 +21,18 @@ impl DirectionMeasurements {
         for &value in values {
             measurements.add_measurement(value);
         }
+        measurements
+    }
+
+    #[cfg(feature = "arrow")]
+    pub fn from_arrow(array: &Float64Array) -> Self {
+        use arrow::array::ArrayIter;
+        let mut measurements = Self::new();
+        ArrayIter::new(array).for_each(|value| {
+            if value.is_some_and(|v| !v.is_nan()) {
+                measurements.add_measurement(value.unwrap());
+            }
+        });
         measurements
     }
 
@@ -132,5 +147,29 @@ mod tests {
         assert!(
             measurements.standard_deviation() < 104.0 && measurements.standard_deviation() > 103.0
         ); // Case explored in Yamartino paper
+    }
+
+    #[cfg(feature = "arrow")]
+    #[test]
+    fn from_empty_arrow() {
+        use arrow::array::Float64Array;
+        let values: Vec<f64> = vec![];
+        let array = Float64Array::from(values);
+        let measurements = DirectionMeasurements::from_arrow(&array);
+        assert_eq!(measurements.count, 0);
+        assert!(measurements.average_direction().is_nan());
+        assert!(measurements.standard_deviation().is_nan());
+    }
+
+    #[cfg(feature = "arrow")]
+    #[test]
+    fn from_arrow() {
+        use arrow::array::Float64Array;
+        let values = vec![90.0, 90.0, 90.0, 90.0, 90.0];
+        let array = Float64Array::from(values);
+        let measurements = DirectionMeasurements::from_arrow(&array);
+        assert_eq!(measurements.count, 5);
+        assert_eq!(measurements.average_direction(), 90.0);
+        assert_eq!(measurements.standard_deviation(), 0.0);
     }
 }
