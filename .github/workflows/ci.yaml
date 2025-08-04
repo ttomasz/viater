@@ -3,6 +3,9 @@ name: Cargo Build & Test
 on:
   push:
   pull_request:
+  include:
+    - "src/**"
+    - ".github/workflows/ci.yaml"
 
 env: 
   CARGO_TERM_COLOR: always
