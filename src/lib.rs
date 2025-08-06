@@ -1,4 +1,4 @@
-pub struct DirectionMeasurements {
+pub struct WindDirectionMeasurements {
     count: u64,
     sum_sin_rad: f64,
     sum_cos_rad: f64,
@@ -7,9 +7,9 @@ pub struct DirectionMeasurements {
 #[cfg(feature = "arrow")]
 use arrow::array::Float64Array;
 
-impl DirectionMeasurements {
+impl WindDirectionMeasurements {
     pub fn new() -> Self {
-        DirectionMeasurements {
+        WindDirectionMeasurements {
             count: 0,
             sum_sin_rad: 0.0,
             sum_cos_rad: 0.0,
@@ -17,7 +17,7 @@ impl DirectionMeasurements {
     }
 
     pub fn from_values(values: &Vec<f64>) -> Self {
-        let mut measurements = DirectionMeasurements::new();
+        let mut measurements = WindDirectionMeasurements::new();
         for &value in values {
             measurements.add_measurement(value);
         }
@@ -72,9 +72,9 @@ impl DirectionMeasurements {
     }
 }
 
-impl Default for DirectionMeasurements {
+impl Default for WindDirectionMeasurements {
     fn default() -> Self {
-        DirectionMeasurements::new()
+        WindDirectionMeasurements::new()
     }
 }
 
@@ -84,14 +84,14 @@ mod tests {
 
     #[test]
     fn no_measurements() {
-        let measurements = DirectionMeasurements::new();
+        let measurements = WindDirectionMeasurements::new();
         assert!(measurements.average_direction().is_nan());
         assert!(measurements.standard_deviation().is_nan());
     }
 
     #[test]
     fn single_measurement_0() {
-        let mut measurements = DirectionMeasurements::new();
+        let mut measurements = WindDirectionMeasurements::new();
         measurements.add_measurement(0.0);
         assert_eq!(measurements.average_direction(), 0.0);
         assert_eq!(measurements.standard_deviation(), 0.0);
@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn single_measurement_90() {
-        let mut measurements = DirectionMeasurements::new();
+        let mut measurements = WindDirectionMeasurements::new();
         measurements.add_measurement(90.0);
         assert_eq!(measurements.average_direction(), 90.0);
         assert_eq!(measurements.standard_deviation(), 0.0);
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn single_measurement_180() {
-        let mut measurements = DirectionMeasurements::new();
+        let mut measurements = WindDirectionMeasurements::new();
         measurements.add_measurement(180.0);
         assert_eq!(measurements.average_direction(), 180.0);
         assert_eq!(measurements.standard_deviation(), 0.0);
@@ -115,7 +115,7 @@ mod tests {
 
     #[test]
     fn single_measurement_270() {
-        let mut measurements = DirectionMeasurements::new();
+        let mut measurements = WindDirectionMeasurements::new();
         measurements.add_measurement(270.0);
         assert_eq!(measurements.average_direction(), 270.0);
         assert_eq!(measurements.standard_deviation(), 0.0);
@@ -123,7 +123,7 @@ mod tests {
 
     #[test]
     fn single_measurement_360() {
-        let mut measurements = DirectionMeasurements::new();
+        let mut measurements = WindDirectionMeasurements::new();
         measurements.add_measurement(360.0);
         assert_eq!(measurements.average_direction(), 360.0);
         assert_eq!(measurements.standard_deviation(), 0.0);
@@ -131,7 +131,7 @@ mod tests {
 
     #[test]
     fn multiple_measurements() {
-        let mut measurements = DirectionMeasurements::new();
+        let mut measurements = WindDirectionMeasurements::new();
         measurements.add_measurement(0.0);
         measurements.add_measurement(90.0);
         assert_eq!(measurements.average_direction(), 45.0);
@@ -140,7 +140,7 @@ mod tests {
 
     #[test]
     fn full_circle_measurements() {
-        let mut measurements = DirectionMeasurements::new();
+        let mut measurements = WindDirectionMeasurements::new();
         for angle in 0..360 {
             measurements.add_measurement(angle as f64);
         }
@@ -155,7 +155,7 @@ mod tests {
         use arrow::array::Float64Array;
         let values: Vec<f64> = vec![];
         let array = Float64Array::from(values);
-        let measurements = DirectionMeasurements::from_arrow(&array);
+        let measurements = WindDirectionMeasurements::from_arrow(&array);
         assert_eq!(measurements.count, 0);
         assert!(measurements.average_direction().is_nan());
         assert!(measurements.standard_deviation().is_nan());
@@ -167,7 +167,7 @@ mod tests {
         use arrow::array::Float64Array;
         let values = vec![90.0, 90.0, 90.0, 90.0, 90.0];
         let array = Float64Array::from(values);
-        let measurements = DirectionMeasurements::from_arrow(&array);
+        let measurements = WindDirectionMeasurements::from_arrow(&array);
         assert_eq!(measurements.count, 5);
         assert_eq!(measurements.average_direction(), 90.0);
         assert_eq!(measurements.standard_deviation(), 0.0);
