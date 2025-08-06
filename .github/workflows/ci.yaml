@@ -3,7 +3,7 @@ name: Cargo Build & Test
 on:
   push:
   pull_request:
-  include:
+  paths:
     - "src/**"
     - ".github/workflows/ci.yaml"
 
